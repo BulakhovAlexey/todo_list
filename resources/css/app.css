@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.header__container{
+    box-shadow: 0px 0px 25px 1px rgba(107, 103, 107, 0.4);
+}
+.form__input{
+    @apply block w-full h-10 pl-3 pr-3 text-base text-gray-700 border focus:outline-none rounded shadow-sm focus:border-blue-500
+}
+.form{
+    @apply flex flex-col w-full gap-10;
+}
+.button{
+    @apply font-bold py-2 px-4 rounded;
+}
+.button.primary{
+    @apply bg-blue-500 hover:bg-blue-700 text-white
+}
+.button.secondary{
+    @apply bg-gray-500 hover:bg-gray-700 text-white;
+}
+.button.danger{
+    @apply bg-red-500 hover:bg-red-700 text-white;
+}
+.nested-enter-active,
+.nested-leave-active {
+    transition: all 0.3s ease-in-out;
+}
+.nested-enter-from,
+.nested-leave-to {
+    transform: translateX(30px);
+    opacity: 0;
+}
+.filter-tag{
+    @apply inline-flex items-center justify-center w-full py-1 px-3 bg-gray-100 text-black rounded-md cursor-pointer hover:opacity-65 transition-all;
+    box-shadow: 0px 2px 9px 1px rgba(107, 103, 107, 0.41);
+}
+.filter-tag.active{
+    @apply bg-green-200 transition-all;
+
+}
+.button-item{
+    @apply rounded-lg border-2 bg-gray-100 py-1 px-2 cursor-pointer hover:opacity-65 transition-all;
+}
+
+.button-item.active{
+    @apply bg-green-200 pointer-events-none transition-all;
+}

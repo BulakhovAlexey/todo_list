@@ -15,7 +15,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head title="Todo list" />
+    <Head title="Task detail" />
     <GuestLayout>
         <h1 class="text-2xl mb-3">Task #{{task.id}}</h1>
         <TaskDetail :task="props.task" />

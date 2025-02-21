@@ -43,7 +43,7 @@ const { clearAll } = useClearSearch()
 </script>
 
 <template>
-    <Head title="Todo list" />
+    <Head title="Tasks list" />
     <GuestLayout>
         <div class="flex justify-center items-center gap-1 mb-3">
             <h1 class="text-2xl text-center flex-grow">Todo List</h1>

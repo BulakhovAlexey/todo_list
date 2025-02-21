@@ -17,7 +17,7 @@ const submit = (form) => {
 </script>
 
 <template>
-    <Head title="Todo list" />
+    <Head title="Task Create" />
     <GuestLayout>
         <h1 class="text-2xl mb-3">Create task</h1>
         <TaskForm :create="true" :tags="tags" @submitForm="submit" />

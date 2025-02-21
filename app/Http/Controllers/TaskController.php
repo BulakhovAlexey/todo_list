@@ -3,23 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Task\UpdateRequest;
-use App\Http\Resources\TagResource;
-use App\Http\Resources\TaskResource;
-use App\Models\Task;
-use App\Services\TagService;
-use App\Services\TaskService;
+use App\Services\TagsViewService;
+use App\Services\TasksViewService;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-    protected TaskService $taskService;
-    protected TagService $tagService;
+    protected TasksViewService $tasksViewService;
+    protected TagsViewService $tagsViewService;
 
-    public function __construct(TaskService $taskService, TagService $tagService)
+    public function __construct(TasksViewService $tasksViewService, TagsViewService $tagsViewService)
     {
-        $this->taskService = $taskService;
-        $this->tagService = $tagService;
+        $this->tasksViewService = $tasksViewService;
+        $this->tagsViewService = $tagsViewService;
     }
 
     /**
@@ -27,11 +24,11 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Tasks/Index', [
-            'filters' => Request::all(['search','tag','is_completed']),
-            'tasks' => $this->taskService->getWithPaginate(5),
-            'tags' => TagResource::collection($this->tagService->getTags())->resolve(),
-        ]);
+        $params['filters'] = Request::all(['search','tag','is_completed']);
+        $data = $this->tasksViewService->getIndexData($params);
+        $data['tags'] = $this->tagsViewService->getIndexData();
+
+        return Inertia::render('Tasks/Index', $data);
     }
 
     /**
@@ -39,9 +36,9 @@ class TaskController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Tasks/Create', [
-            'tags' => TagResource::collection($this->tagService->getTags())->resolve(),
-        ]);
+        $data['tags'] = $this->tagsViewService->getIndexData();
+
+        return Inertia::render('Tasks/Create', $data);
     }
 
     /**
@@ -50,8 +47,8 @@ class TaskController extends Controller
     public function store(UpdateRequest $request)
     {
         $data = $request->validated();
-        $newTask = $this->taskService->createTask($data);
-        $this->tagService->syncTaskTags($newTask, $data['tags']);
+        $newTask = $this->tasksViewService->storeAction($data);
+        $this->tagsViewService->updateAction($newTask->id, $data['tags']);
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
@@ -61,9 +58,9 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        return Inertia::render('Tasks/Show', [
-            'task' => TaskResource::make($this->taskService->getTaskById($id))->resolve(),
-        ]);
+        $data = $this->tasksViewService->getShowData($id);
+
+        return Inertia::render('Tasks/Show', $data);
     }
 
     /**
@@ -71,10 +68,10 @@ class TaskController extends Controller
      */
     public function edit(string $id)
     {
-        return Inertia::render('Tasks/Edit', [
-            'task' => TaskResource::make($this->taskService->getTaskById($id))->resolve(),
-            'tags' => TagResource::collection($this->tagService->getTags())->resolve(),
-        ]);
+        $data = $this->tasksViewService->getEditData($id);
+        $data['tags'] = $this->tagsViewService->getIndexData();
+
+        return Inertia::render('Tasks/Edit', $data);
     }
 
     /**
@@ -83,19 +80,18 @@ class TaskController extends Controller
     public function update(UpdateRequest $request, string $id)
     {
         $data = $request->validated();
-        $task = $this->taskService->getTaskById($id);
-        $updatedTask = $this->taskService->updateTask($task, $data);
-        $this->tagService->syncTaskTags($updatedTask, $data['tags']);
+        $updatedTask = $this->tasksViewService->updateAction($id, $data);
+        $task = $this->tagsViewService->updateAction($updatedTask->id, $data['tags']);
 
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        return redirect()->route('tasks.index')->with('success', 'Task ' . $task->id . ' updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
+    public function destroy($id)
     {
-        $this->taskService->deleteTask($task);
+        $this->tasksViewService->deleteAction($id);
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
